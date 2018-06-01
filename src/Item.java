@@ -2,10 +2,10 @@ import java.util.Random;
 public class Item
 {
 
-    static String name="Small Rock";
-    static String desc="An item used for testing.";
+    String name="Small Rock";
+    String desc="An item used for testing.";
     static Random rnd = new Random();
-    public Item(/*int type*/)
+    public Item()
     {
         /*
         this.dmgMultiplier=1;

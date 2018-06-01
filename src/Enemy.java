@@ -43,6 +43,9 @@ public class Enemy
         }
         return this.isAlive;
     }
+    public boolean getIsAlive() {
+        return this.isAlive;
+    }
     public String getName() {
         return this.name;
     }

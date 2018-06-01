@@ -65,4 +65,7 @@ public class Player
         }
         return this.isAlive;
     }
+    public boolean getIsAlive() {
+        return this.isAlive;
+    }
 }
