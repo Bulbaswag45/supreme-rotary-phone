@@ -46,6 +46,9 @@ public class Player
             System.out.println(item.returnName() + " : " + item.returnDesc());
         }
     }
+    public ArrayList<Item> returnInventory() {
+    	return this.inventory;
+    }
     /*
     public void displayItemInfo(){
     }

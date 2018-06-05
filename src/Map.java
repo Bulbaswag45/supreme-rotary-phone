@@ -1,7 +1,7 @@
 import java.applet.Applet;
 import java.awt.*;
 
-public class map extends Applet
+public class Map extends Applet
 {
     public void paint(Graphics g)
     {

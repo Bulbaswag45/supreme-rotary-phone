@@ -4,6 +4,12 @@
  * @author (your name)
  * @version (a version number or a date)
  */
+import java.awt.Frame;
+import javax.swing.*;
+
+import java.applet.Applet;
+import java.awt.*;
+import java.awt.event.*;
 public class RPG_Game
 {
     public static void main(String[] args)
@@ -13,6 +19,31 @@ public class RPG_Game
         player.takeItem(new FireballTome());
         player.takeItem(new HealthPotion());
         player.takeItem(new ManaPotion());
+    	
+    	
+    	//Map Frame Code
+    	JFrame map_UI = new JFrame();
+    	map_UI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	final Map applet = new Map();
+    	map_UI.add(applet);
+    	map_UI.setSize(1000,900);
+    	map_UI.setVisible(true);
+		
+    	//Combat Frame Code
+    	JFrame combat_UI = new JFrame();
+    	combat_UI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	
+    	JList<Item> playerInventoryUI = new JList<Item>((Item[]) player.returnInventory());
+    	playerInventoryUI.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    	playerInventoryUI.setVisibleRowCount(3);
+    	
+    	JScrollPane listScroller = new JScrollPane(playerInventoryUI);
+    	listScroller.setPreferredSize(new Dimension(250, 80));
+    	
+    	combat_UI.add(playerInventoryUI);
+    	combat_UI.pack();
+    	combat_UI.setVisible(true);
+    	
         //combat.NewFight();
         new Combat(player).NewFight();
         //player.displayInventory();
@@ -55,3 +86,18 @@ class Combat
     	enemy.checkIsAlive();
     }
 }
+/*
+class PlayerInput extends Applet implements ActionListener {
+	
+	
+	public void createPlayerInputUI() {
+		list = new JList(player.returnInventory());
+	}
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+}*/
