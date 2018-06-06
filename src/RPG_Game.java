@@ -4,23 +4,33 @@
  * @author (your name)
  * @version (a version number or a date)
  */
-import java.awt.Frame;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 public class RPG_Game
 {
-    public static void main(String[] args)
+	private JFrame combatFrame;
+	private JLabel enemyLabel;
+	private JLabel playerLabel;
+	private JLabel inventoryLabel;
+	private JPanel controlPanel;
+
+	public static void main(String[] args)
     {
         Player player = new Player();
+        Enemy enemy = new Enemy();
         //Combat combat = new Combat(player);
         player.takeItem(new FireballTome());
         player.takeItem(new HealthPotion());
         player.takeItem(new ManaPotion());
-    	
-    	
+        player.takeItem(new FireballTome());
+		SwingControlDemo swingControlDemo = new SwingControlDemo();
+		swingControlDemo.showListDemo(player, enemy);
+        
+    	/*
     	//Map Frame Code
     	JFrame map_UI = new JFrame();
     	map_UI.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,10 +53,7 @@ public class RPG_Game
     	combat_UI.add(playerInventoryUI);
     	combat_UI.pack();
     	combat_UI.setVisible(true);
-    	
-        //combat.NewFight();
-        new Combat(player).NewFight();
-        //player.displayInventory();
+	*/
     }
 }
 class Combat
@@ -86,18 +93,87 @@ class Combat
     	enemy.checkIsAlive();
     }
 }
-/*
-class PlayerInput extends Applet implements ActionListener {
+
+class SwingControlDemo {
+	private JFrame combatFrame;
+	private JLabel combatLabel;
+	private JLabel itemLabel;
+	private JSplitPane splitPane;
+	private JScrollPane inventoryListScrollPane;
 	
+	private JLabel enemyLabel;
+	private JLabel playerLabel;
+	private JLabel inventoryLabel;
+	private JPanel controlPanel;
 	
-	public void createPlayerInputUI() {
-		list = new JList(player.returnInventory());
+	public SwingControlDemo() {
+		prepareGUI();
 	}
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-}*/
+	private void prepareGUI(){
+		combatFrame = new JFrame("Java Swing Examples");
+		combatFrame.setSize(400,400);
+	      combatFrame.setLayout(new GridLayout(3, 1));
+	      
+	      combatFrame.addWindowListener(new WindowAdapter() {
+	         public void windowClosing(WindowEvent windowEvent){
+	            System.exit(0);
+	         }        
+	      });    
+	      combatLabel = new JLabel("", JLabel.CENTER);        
+	      itemLabel = new JLabel("",JLabel.CENTER);    
+
+	      controlPanel = new JPanel();
+	      splitPane = new JSplitPane();
+	      splitPane.setLeftComponent(inventoryListScrollPane);
+	      splitPane.setRightComponent(controlPanel);
+	      splitPane.setLayout(new FlowLayout());
+	      controlPanel.add(itemLabel);
+	      controlPanel.setLayout(new FlowLayout());
+	      
+	      combatFrame.add(combatLabel);
+	      combatFrame.add(splitPane);
+	      combatFrame.setVisible(true);  
+	   }
+	   public void showListDemo(Player player, Enemy enemy){                                       
+	      combatLabel.setText("Control in action: JList"); 
+	      final DefaultListModel<Item> inventoryListModel = new DefaultListModel<Item>();
+
+	      for(Item item : player.returnInventory()) {
+	    	  inventoryListModel.addElement(item);
+	        }
+
+	      final JList<Item> inventoryList = new JList<Item>(inventoryListModel);
+	      inventoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	      inventoryList.setSelectedIndex(0);
+	      inventoryList.setVisibleRowCount(3);        
+
+	      inventoryListScrollPane = new JScrollPane(inventoryList);   
+	      
+	      inventoryList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				// TODO Auto-generated method stub
+				Item item = inventoryList.getSelectedValue();
+				itemLabel.setText(item.returnDesc());
+			}
+	    	  
+	    	  
+	    	  
+	    	  
+	      });
+	      
+	      JButton useItemButton = new JButton("Use Item");
+
+	      useItemButton.addActionListener(new ActionListener() {
+	         public void actionPerformed(ActionEvent e) { 
+	            
+	         }
+	      }); 
+	      controlPanel.add(inventoryListScrollPane);    
+	      //controlPanel.add(vegListScrollPane);    
+	      //controlPanel.add(useItemButton);    
+		  combatFrame.add(useItemButton);
+	      combatFrame.setVisible(true);             
+	   }
+}
