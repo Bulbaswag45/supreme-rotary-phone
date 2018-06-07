@@ -53,11 +53,18 @@ public class Item
     */
     public String returnName()
     {
-        return name;
+        return this.name;
     }
     public String returnDesc()
     {
-        return desc;
+        return this.desc;
+    }
+    public void useItem(Combat combat) {
+    	
+    }
+    @Override
+    public String toString() {
+    	return this.name;
     }
 }
 class HealthPotion extends Item{
@@ -68,8 +75,8 @@ class HealthPotion extends Item{
         this.restoreHealth=x;
         this.desc="A health potion that restores " + x + " health.";
     }
-    public void useItem(Player player) {
-        player.changeHealth(this.restoreHealth);
+    public void useItem(Combat combat) {
+        combat.returnPlayer().changeHealth(this.restoreHealth);
     }
 }
 class ManaPotion extends Item{
@@ -80,8 +87,8 @@ class ManaPotion extends Item{
        this.restoreMana=x;
        this.desc="A mana potion that restores " + x + " mana."; 
     }
-    public void useItem(Player player) {
-        player.changeMana(this.restoreMana);
+    public void useItem(Combat combat) {
+    	combat.returnPlayer().changeMana(this.restoreMana);
     }
 }
 class RegenPotion extends Item{   
@@ -95,10 +102,10 @@ class RegenPotion extends Item{
        this.restoreMana=y;
        this.desc="A special potion that restores " + x + " health and " + y + " mana.";
    }
-   public void useItem(Player player) {
-       player.changeHealth(this.restoreHealth);
-        player.changeMana(this.restoreMana);
-    }
+   public void useItem(Combat combat) {
+	   combat.returnPlayer().changeHealth(this.restoreHealth);
+	   combat.returnPlayer().changeMana(this.restoreMana);
+   }
 }
 class FireballTome extends Item{
     int damage;
@@ -108,13 +115,9 @@ class FireballTome extends Item{
         this.damage=x;
         this.desc="A red and gold tome that can cast fireball, dealing " + x + " damage.";
     }
-    /*
-    public void useItem(Player player) {
-        System.out.println("What enemy would you like to target?");
-        Enemy target
-        int damageDealt = rnd.nextInt(this.damage/2) + (this.damage/2);
-        target.changeHealth(-damageDealt);
-        System.out.println(wielder.getName() + " deals " + damageDealt + " damage to " + target.getName());
+    public void useItem(Combat combat) {
+    	int damageDealt = rnd.nextInt(this.damage);
+    	combat.returnEnemy().changeHealth(-damageDealt);
+    	System.out.println(combat.returnPlayer().getName() + " deals " + damageDealt + " damage to " + combat.returnEnemy().getName());
     }
-    */
 }

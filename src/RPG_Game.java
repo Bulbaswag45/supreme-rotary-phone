@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 public class RPG_Game
 {
+	private static Object monitor;
 	private JFrame combatFrame;
 	private JLabel enemyLabel;
 	private JLabel playerLabel;
@@ -21,14 +22,14 @@ public class RPG_Game
 	public static void main(String[] args)
     {
         Player player = new Player();
-        Enemy enemy = new Enemy();
-        //Combat combat = new Combat(player);
+        Combat combat = new Combat(player);
         player.takeItem(new FireballTome());
         player.takeItem(new HealthPotion());
         player.takeItem(new ManaPotion());
         player.takeItem(new FireballTome());
-		SwingControlDemo swingControlDemo = new SwingControlDemo();
-		swingControlDemo.showListDemo(player, enemy);
+		SwingControlDemo swingControlDemo = new SwingControlDemo(combat);
+        //combat.NewFight();
+		//swingControlDemo.showListDemo(player, enemy);
         
     	/*
     	//Map Frame Code
@@ -60,19 +61,21 @@ class Combat
 {
     Enemy enemy;
     Player player;
+    Object monitor;
     public Combat(Player newPlayer)
     {
         enemy = new Enemy();
         player = newPlayer;
     }
-    
-    public void NewFight(){
+
+    public synchronized void oneRound(){
         System.out.println("You encounter an enemy!");
         while (enemy.checkIsAlive() && player.checkIsAlive()){
         	if (player.getIsAlive()==true) {
-        		playerTurn();
+
         	}
             if (enemy.getIsAlive()==true) {
+
             	enemy.dealDamage(player);      
             }
             
@@ -84,96 +87,117 @@ class Combat
         	System.out.println("You were defeated! Game over...");
         }
     }
-    public void playerTurn(){
-        System.out.println("What item will you use?");
-        player.displayInventory();
+
+    /*
+    public void playerTurn(Object monitor){
+    	try {
+			monitor.wait();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
+    */
     public void enemyTurn(){
     	enemy.dealDamage(player);
     	enemy.checkIsAlive();
+    }
+    public Enemy returnEnemy() {
+    	return enemy;
+    }
+    public Player returnPlayer() {
+    	return player;
     }
 }
 
 class SwingControlDemo {
 	private JFrame combatFrame;
 	private JLabel combatLabel;
-	private JLabel itemLabel;
+	private JTextArea itemLabel;
 	private JSplitPane splitPane;
-	private JScrollPane inventoryListScrollPane;
-	
-	private JLabel enemyLabel;
-	private JLabel playerLabel;
-	private JLabel inventoryLabel;
 	private JPanel controlPanel;
 	
-	public SwingControlDemo() {
-		prepareGUI();
+	public SwingControlDemo(Combat combat) {
+		prepareGUI(combat);
 	}
-	private void prepareGUI(){
-		combatFrame = new JFrame("Java Swing Examples");
-		combatFrame.setSize(400,400);
-	      combatFrame.setLayout(new GridLayout(3, 1));
+	private void prepareGUI(Combat combat){
+		Player player = combat.returnPlayer();
+		Enemy enemy = combat.returnEnemy();
+		combatFrame = new JFrame("Combat");
+		combatFrame.setSize(800,400);
+	    combatFrame.setLayout(new GridBagLayout());
+	    GridBagConstraints c = new GridBagConstraints();
+	    
+	    combatFrame.addWindowListener(new WindowAdapter() {
+	    	public void windowClosing(WindowEvent windowEvent){
+	    		System.exit(0);
+	        }        
+	     });  
+	    
+	    final DefaultListModel<Item> inventoryListModel = new DefaultListModel<Item>();
+
+	    for(Item item : player.returnInventory()) {
+	    	inventoryListModel.addElement(item);
+	    }
+
+	    final JList<Item> inventoryList = new JList<Item>(inventoryListModel);
+	    inventoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+	    inventoryList.setSelectedIndex(0);
+	    inventoryList.setVisibleRowCount(3);        
 	      
-	      combatFrame.addWindowListener(new WindowAdapter() {
-	         public void windowClosing(WindowEvent windowEvent){
-	            System.exit(0);
-	         }        
-	      });    
-	      combatLabel = new JLabel("", JLabel.CENTER);        
-	      itemLabel = new JLabel("",JLabel.CENTER);    
+	    inventoryList.addListSelectionListener(new ListSelectionListener() {
 
-	      controlPanel = new JPanel();
-	      splitPane = new JSplitPane();
-	      splitPane.setLeftComponent(inventoryListScrollPane);
-	      splitPane.setRightComponent(controlPanel);
-	      splitPane.setLayout(new FlowLayout());
-	      controlPanel.add(itemLabel);
-	      controlPanel.setLayout(new FlowLayout());
+	    	@Override
+	    	public void valueChanged(ListSelectionEvent e) {
+	    		// TODO Auto-generated method stub
+	    		Item item = inventoryList.getSelectedValue();
+	    		itemLabel.setText(item.returnDesc());
+	    		
+	    	}
+	    });
 	      
-	      combatFrame.add(combatLabel);
-	      combatFrame.add(splitPane);
-	      combatFrame.setVisible(true);  
-	   }
-	   public void showListDemo(Player player, Enemy enemy){                                       
-	      combatLabel.setText("Control in action: JList"); 
-	      final DefaultListModel<Item> inventoryListModel = new DefaultListModel<Item>();
+	    JButton useItemButton = new JButton("Use Item");
 
-	      for(Item item : player.returnInventory()) {
-	    	  inventoryListModel.addElement(item);
-	        }
+	    useItemButton.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent e) { 
+	            //Code to use the item Selected
+	    		Item item = inventoryList.getSelectedValue();
+	    		
+	    		System.out.println("You encounter an enemy!");
+	            	if (player.getIsAlive()==true) {
+	            		item.useItem(combat);
+	            	}
+	                if (enemy.getIsAlive()==true) {
 
-	      final JList<Item> inventoryList = new JList<Item>(inventoryListModel);
-	      inventoryList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-	      inventoryList.setSelectedIndex(0);
-	      inventoryList.setVisibleRowCount(3);        
-
-	      inventoryListScrollPane = new JScrollPane(inventoryList);   
-	      
-	      inventoryList.addListSelectionListener(new ListSelectionListener() {
-
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				// TODO Auto-generated method stub
-				Item item = inventoryList.getSelectedValue();
-				itemLabel.setText(item.returnDesc());
-			}
-	    	  
-	    	  
-	    	  
-	    	  
-	      });
-	      
-	      JButton useItemButton = new JButton("Use Item");
-
-	      useItemButton.addActionListener(new ActionListener() {
-	         public void actionPerformed(ActionEvent e) { 
-	            
-	         }
-	      }); 
-	      controlPanel.add(inventoryListScrollPane);    
-	      //controlPanel.add(vegListScrollPane);    
-	      //controlPanel.add(useItemButton);    
-		  combatFrame.add(useItemButton);
-	      combatFrame.setVisible(true);             
-	   }
+	                	enemy.dealDamage(player);      
+	                }
+	            if (!enemy.getIsAlive()) {
+	            	System.out.println("You defeated " + enemy.getName() + "!");
+	            }
+	            if (!player.getIsAlive()) {
+	            	System.out.println("You were defeated! Game over...");
+	            }
+	    	   }
+	    });    
+	    
+	    itemLabel = new JTextArea ("");
+	    itemLabel.setLineWrap(true);
+	    itemLabel.setSize(500, 100);
+	    combatLabel = new JLabel("", JLabel.CENTER); 
+	    controlPanel = new JPanel();
+	    controlPanel.add(itemLabel);
+	    splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+	    splitPane.setLeftComponent(new JScrollPane(inventoryList));
+	    splitPane.setRightComponent(controlPanel);
+	    c.gridx=0;
+	    c.gridy=2;
+	    combatFrame.add(useItemButton, c);
+	    c.gridheight=6;
+	    c.gridwidth=1000;
+	    c.gridx=1;
+	    c.gridy=0;
+	    combatFrame.add(splitPane,c);       
+	    combatFrame.add(combatLabel);
+	    combatFrame.setVisible(true);  
+	 	}
 }
